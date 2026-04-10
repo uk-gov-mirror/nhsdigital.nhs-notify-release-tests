@@ -41,13 +41,19 @@ fi
 # Set up Python virtual environment and install dependencies
 python -m venv .venv \
   && source .venv/bin/activate \
-  && poetry install \
-  && poetry run pytest --html=tests/evidence/report.html --self-contained-html --capture=tee-sys
+  && poetry install
+
+# Run pytest, capturing the exit code so it can be preserved after the S3 upload
+set +e
+poetry run pytest --html=tests/evidence/report.html --self-contained-html --capture=tee-sys
+PYTEST_EXIT_CODE=$?
+set -e
 
 # Unset AWS credentials to drop back to default profile
 unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
 
 # Upload test evidence to S3 with environment/timestamp prefix
+# This always runs regardless of test outcome so the report is always available
 TIMESTAMP=$(date +%Y%m%d%H%M%S)
 S3_PREFIX="release-tests/${ENVIRONMENT}/${TIMESTAMP}/"
 
@@ -57,3 +63,6 @@ if [ -d "tests/evidence" ]; then
 else
   echo "No evidence directory found to upload."
 fi
+
+# Exit with pytest's code so the container exit code reflects the test result
+exit $PYTEST_EXIT_CODE
