@@ -1,5 +1,5 @@
 import uuid
-from helpers.constants import NHS_NUMBER_NHSAPP, PARALLEL_SEND_ROUTING_CONFIGURATION
+from helpers.constants import NHS_NUMBER_NHSAPP, PARALLEL_SEND_ROUTING_CONFIGURATION_SMS
 from helpers.api.apim_request import APIHelper
 from helpers.aws.aws_client import AWSClient
 from helpers.test_data.user_data import UserData
@@ -12,7 +12,7 @@ def test_parallel_send(api_client):
     
     user = [
         UserData(
-            routing_plan_id=PARALLEL_SEND_ROUTING_CONFIGURATION,
+            routing_plan_id=PARALLEL_SEND_ROUTING_CONFIGURATION_SMS,
             nhs_number = NHS_NUMBER_NHSAPP,
             # communication_type and supplier are used in enrich test data for GUKN requests
             communication_type = "SMS",
