@@ -1,10 +1,10 @@
 import uuid
-from helpers.constants import NHS_NUMBER_NHSAPP, PARALLEL_SEND_ROUTING_CONFIGURATION_EMAIL
+from helpers.constants import NHS_NUMBER_NHSAPP, PARALLEL_SEND_ROUTING_CONFIGURATION
 from helpers.api.apim_request import APIHelper
 from helpers.aws.aws_client import AWSClient
 from helpers.test_data.user_data import UserData
 from helpers.ui import nhs_app_journey
-from helpers.api.govuk_notify import verify_email_content
+from helpers.api.govuk_notify import verify_sms_content
 
 def test_parallel_send(api_client):
     api_helper = APIHelper(api_client)
@@ -12,10 +12,10 @@ def test_parallel_send(api_client):
     
     user = [
         UserData(
-            routing_plan_id=PARALLEL_SEND_ROUTING_CONFIGURATION_EMAIL,
+            routing_plan_id=PARALLEL_SEND_ROUTING_CONFIGURATION,
             nhs_number = NHS_NUMBER_NHSAPP,
             # communication_type and supplier are used in enrich test data for GUKN requests
-            communication_type = "EMAIL",
+            communication_type = "SMS",
             supplier = "GOVUK_NOTIFY",
             message_reference= str(uuid.uuid1()),
             personalisation = "Parallel Send"
@@ -29,6 +29,6 @@ def test_parallel_send(api_client):
     
     UserData.enrich_test_data(aws_client, user)
 
-    verify_email_content(user[0])
+    verify_sms_content(user[0])
     
     api_helper.poll_for_message_status(user[0].request_item, "delivered")
